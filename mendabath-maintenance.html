@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mendabath – Monthly Equipment Maintenance</title>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --yellow: #F2D60A;
+    --yellow-dark: #d4bc00;
+    --grey-dark: #2E2E2E;
+    --grey-mid: #4A4A4A;
+    --grey-light: #6B6B6B;
+    --grey-bg: #F5F5F3;
+    --grey-border: #DDDDD8;
+    --white: #FFFFFF;
+    --green: #2E7D32;
+    --green-light: #e8f5e9;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Barlow', sans-serif; background: var(--grey-bg); color: var(--grey-dark); min-height: 100vh; }
+
+  /* HEADER */
+  header { background: var(--grey-dark); position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 12px rgba(0,0,0,0.3); }
+  .header-inner { max-width: 820px; margin: 0 auto; display: flex; align-items: center; gap: 16px; padding: 14px 20px; }
+  .logo-badge { background: var(--yellow); border-radius: 8px; padding: 6px 12px; display: flex; flex-direction: column; align-items: center; line-height: 1.2; flex-shrink: 0; }
+  .logo-badge span:first-child { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 13px; color: var(--grey-dark); letter-spacing: 0.5px; }
+  .logo-badge span:last-child { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 11px; color: var(--grey-dark); letter-spacing: 1px; }
+  .header-text h1 { font-family: 'Barlow Condensed', sans-serif; font-weight: 800; font-size: 20px; color: var(--white); letter-spacing: 1.5px; text-transform: uppercase; }
+  .header-text p { font-size: 11px; color: #aaa; margin-top: 1px; }
+
+  /* PROGRESS */
+  .progress-bar-wrap { background: var(--grey-dark); padding: 0 20px 10px; }
+  .progress-bar-inner { max-width: 820px; margin: 0 auto; }
+  .progress-label { display: flex; justify-content: space-between; margin-bottom: 5px; }
+  .progress-label span { font-size: 11px; color: #999; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.8px; text-transform: uppercase; }
+  .progress-label .step-name { color: var(--yellow); font-weight: 600; }
+  .progress-track { background: rgba(255,255,255,0.12); border-radius: 4px; height: 4px; overflow: hidden; }
+  .progress-fill { background: var(--yellow); height: 100%; border-radius: 4px; width: 0%; transition: width 0.5s ease; }
+
+  /* FORM WRAP */
+  .form-wrap { max-width: 820px; margin: 0 auto; padding: 20px 16px 60px; }
+
+  /* STEPS */
+  .step { display: none; }
+  .step.active { display: block; animation: fadeUp 0.3s ease; }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* CARD */
+  .card { background: var(--white); border-radius: 12px; border: 1px solid var(--grey-border); margin-bottom: 14px; overflow: hidden; }
+  .card-header { background: var(--grey-dark); padding: 11px 18px; display: flex; align-items: center; justify-content: space-between; }
+  .card-header-left { display: flex; align-items: center; gap: 10px; }
+  .card-header .icon { background: var(--yellow); color: var(--grey-dark); font-size: 14px; width: 28px; height: 28px; border-radius: 6px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .card-header h2 { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; color: var(--white); letter-spacing: 1.5px; text-transform: uppercase; }
+  .card-header p { font-size: 10px; color: #aaa; margin-top: 1px; }
+  .card-body { padding: 16px 18px; }
+
+  /* COMPLETION BADGE */
+  .completion-badge { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 12px; background: rgba(255,255,255,0.1); color: #aaa; transition: all 0.3s; white-space: nowrap; }
+  .completion-badge.complete { background: var(--yellow); color: var(--grey-dark); }
+  .completion-badge.partial { background: rgba(242,214,10,0.2); color: var(--yellow); }
+
+  /* CHECKLIST */
+  .checklist { display: flex; flex-direction: column; gap: 8px; }
+  .check-item { display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: 8px; border: 1.5px solid var(--grey-border); cursor: pointer; transition: all 0.15s; user-select: none; }
+  .check-item:hover { border-color: var(--yellow-dark); background: #fafaf5; }
+  .check-item.checked { background: var(--green-light); border-color: #81c784; }
+  .check-item input[type="checkbox"] { display: none; }
+  .check-box { width: 22px; height: 22px; border-radius: 5px; border: 2px solid var(--grey-border); background: var(--white); display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.15s; }
+  .check-item.checked .check-box { background: var(--green); border-color: var(--green); }
+  .check-box svg { display: none; }
+  .check-item.checked .check-box svg { display: block; }
+  .check-label { font-size: 14px; color: var(--grey-mid); line-height: 1.3; flex: 1; }
+  .check-item.checked .check-label { color: var(--green); font-weight: 500; }
+
+  /* SELECT ALL */
+  .select-all-btn { font-family: 'Barlow Condensed', sans-serif; font-size: 12px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--grey-light); background: none; border: 1px solid var(--grey-border); padding: 4px 10px; border-radius: 6px; cursor: pointer; margin-bottom: 10px; transition: all 0.15s; }
+  .select-all-btn:hover { border-color: var(--yellow-dark); color: var(--grey-dark); }
+  .select-all-btn.all-done { border-color: var(--green); color: var(--green); background: var(--green-light); }
+
+  /* OTHER FIELD */
+  .other-field { margin-top: 10px; }
+  .other-field label { font-size: 11px; font-weight: 700; color: var(--grey-light); text-transform: uppercase; letter-spacing: 0.8px; display: block; margin-bottom: 5px; }
+  .other-field input { width: 100%; padding: 9px 12px; border: 1.5px solid var(--grey-border); border-radius: 7px; font-family: 'Barlow', sans-serif; font-size: 14px; color: var(--grey-dark); outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+  .other-field input:focus { border-color: var(--yellow-dark); box-shadow: 0 0 0 3px rgba(242,214,10,0.18); }
+  .other-field input::placeholder { color: #bbb; }
+
+  /* REQUIRED WARNING */
+  .req-warn { font-size: 11px; color: #c62828; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.5px; margin-top: 6px; display: none; }
+  .req-warn.show { display: block; }
+
+  /* TECH CARDS */
+  .tech-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+  @media (max-width: 500px) { .tech-grid { grid-template-columns: repeat(2, 1fr); } }
+  .tech-card { padding: 12px 8px; border-radius: 10px; border: 1.5px solid var(--grey-border); background: var(--white); font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 0.5px; color: var(--grey-mid); cursor: pointer; text-align: center; transition: all 0.15s; text-transform: uppercase; display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .tech-card .avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--grey-bg); border: 2px solid var(--grey-border); display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 800; color: var(--grey-mid); transition: all 0.15s; }
+  .tech-card:hover { border-color: var(--yellow-dark); }
+  .tech-card:hover .avatar { border-color: var(--yellow); background: #fdf9d0; }
+  .tech-card.selected { background: var(--grey-dark); border-color: var(--grey-dark); color: var(--yellow); }
+  .tech-card.selected .avatar { background: var(--yellow); border-color: var(--yellow); color: var(--grey-dark); }
+
+  /* FIELDS */
+  .field { display: flex; flex-direction: column; gap: 5px; }
+  .field label { font-size: 12px; font-weight: 600; color: var(--grey-mid); text-transform: uppercase; letter-spacing: 0.6px; }
+  .field input[type="date"] { padding: 10px 12px; border: 1.5px solid var(--grey-border); border-radius: 7px; font-family: 'Barlow', sans-serif; font-size: 15px; color: var(--grey-dark); appearance: none; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+  .field input[type="date"]:focus { border-color: var(--yellow-dark); box-shadow: 0 0 0 3px rgba(242,214,10,0.18); }
+  .field textarea { padding: 10px 12px; border: 1.5px solid var(--grey-border); border-radius: 7px; font-family: 'Barlow', sans-serif; font-size: 14px; color: var(--grey-dark); outline: none; resize: vertical; min-height: 80px; transition: border-color 0.2s; }
+  .field textarea:focus { border-color: var(--yellow-dark); box-shadow: 0 0 0 3px rgba(242,214,10,0.18); }
+
+  /* STEP OVERVIEW (overview pills on step 1) */
+  .overview-note { background: #fff9cc; border: 1px solid #f0d800; border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #5a4a00; margin-top: 16px; line-height: 1.5; }
+  .overview-note strong { color: #3a3000; }
+
+  /* NAV */
+  .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-top: 20px; gap: 12px; }
+  .btn { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; padding: 13px 24px; border-radius: 8px; border: none; cursor: pointer; transition: all 0.18s; display: flex; align-items: center; gap: 7px; }
+  .btn-primary { background: var(--yellow); color: var(--grey-dark); flex: 1; justify-content: center; }
+  .btn-primary:hover { background: var(--yellow-dark); transform: translateY(-1px); }
+  .btn-secondary { background: transparent; color: var(--grey-mid); border: 1.5px solid var(--grey-border); flex-shrink: 0; }
+  .btn-secondary:hover { background: var(--grey-border); }
+  .btn-submit { background: var(--grey-dark); color: var(--yellow); flex: 1; justify-content: center; }
+  .btn-submit:hover { background: #1a1a1a; transform: translateY(-1px); }
+
+  /* STEP DOTS */
+  .step-dots { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--grey-border); transition: all 0.2s; }
+  .dot.active { background: var(--yellow); width: 16px; border-radius: 4px; }
+  .dot.done { background: var(--grey-mid); }
+
+  /* LOADING */
+  .submitting-overlay { display: none; position: fixed; inset: 0; background: rgba(46,46,46,0.78); backdrop-filter: blur(4px); z-index: 999; align-items: center; justify-content: center; flex-direction: column; gap: 16px; }
+  .submitting-overlay.show { display: flex; }
+  .spinner { width: 44px; height: 44px; border: 4px solid rgba(255,255,255,0.2); border-top-color: var(--yellow); border-radius: 50%; animation: spin 0.8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .submitting-overlay p { color: var(--white); font-family: 'Barlow Condensed', sans-serif; font-size: 18px; letter-spacing: 1px; }
+
+  /* SUCCESS */
+  #success-screen { display: none; text-align: center; padding: 60px 20px; animation: fadeUp 0.4s ease; }
+  .success-icon { width: 72px; height: 72px; background: var(--yellow); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 20px; }
+  #success-screen h2 { font-family: 'Barlow Condensed', sans-serif; font-size: 28px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; }
+  #success-screen p { color: var(--grey-light); margin-top: 8px; font-size: 15px; }
+  .success-meta { background: var(--white); border: 1px solid var(--grey-border); border-radius: 10px; padding: 16px 24px; margin: 20px auto; max-width: 340px; font-size: 14px; color: var(--grey-mid); line-height: 1.9; }
+  .success-meta strong { color: var(--grey-dark); }
+  .btn-reset { margin-top: 12px; background: var(--grey-dark); color: var(--yellow); border: none; padding: 13px 32px; border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
+  .btn-reset:hover { background: #1a1a1a; }
+
+  .req { color: var(--yellow-dark); }
+
+  /* MINI PROGRESS COUNTER */
+  .mini-counter { font-size: 11px; color: #aaa; font-family: 'Barlow Condensed', sans-serif; text-align: right; margin-bottom: 14px; letter-spacing: 0.5px; }
+  .mini-counter span { color: var(--yellow-dark); font-weight: 700; }
+</style>
+</head>
+<body>
+
+<div class="submitting-overlay" id="loadingOverlay">
+  <div class="spinner"></div>
+  <p>Submitting maintenance check…</p>
+</div>
+
+<header>
+  <div class="header-inner">
+    <div class="logo-badge">
+      <span>MEND A</span>
+      <span>BATH</span>
+    </div>
+    <div class="header-text">
+      <h1>Monthly Equipment Maintenance</h1>
+      <p>Complete all equipment checks and submit</p>
+    </div>
+  </div>
+  <div class="progress-bar-wrap">
+    <div class="progress-bar-inner">
+      <div class="progress-label">
+        <span class="step-name" id="progressStepName">Details</span>
+        <span id="progressText">Step 1 of 4</span>
+      </div>
+      <div class="progress-track">
+        <div class="progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="form-wrap">
+
+  <!-- ===== STEP 1: TECH + DATE ===== -->
+  <div class="step active" id="step1">
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-left">
+          <div class="icon">👤</div>
+          <div><h2>Technician &amp; Month</h2><p>Who is completing this check and for which month?</p></div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="field" style="margin-bottom:18px">
+          <label>Technician <span class="req">*</span></label>
+          <div class="tech-grid">
+            <div class="tech-card" onclick="selectTech(this,'Cecil')"><div class="avatar">C</div>Cecil</div>
+            <div class="tech-card" onclick="selectTech(this,'Tyler')"><div class="avatar">T</div>Tyler</div>
+            <div class="tech-card" onclick="selectTech(this,'Peter')"><div class="avatar">P</div>Peter</div>
+            <div class="tech-card" onclick="selectTech(this,'David')"><div class="avatar">D</div>David</div>
+          </div>
+          <input type="hidden" id="techName">
+        </div>
+        <div class="field">
+          <label>Month of Check <span class="req">*</span></label>
+          <input type="date" id="checkDate">
+        </div>
+        <div class="overview-note">
+          <strong>19 equipment sections</strong> to complete across 3 steps. Each section has a checklist — tick everything that has been done and add any notes in the "Other" field (e.g. items to repair or replace).
+        </div>
+      </div>
+    </div>
+    <div class="nav-buttons">
+      <div class="step-dots">
+        <div class="dot active"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <button class="btn btn-primary" onclick="goStep(2)">Start Checks →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 2: PAINT EQUIPMENT (Turbine, Hose, Extractor, Extractor Ducting, Spray Gun, Feztool, Mirka) ===== -->
+  <div class="step" id="step2">
+    <div class="mini-counter">Sections <span>1–7</span> of 19</div>
+
+    <!-- TURBINE -->
+    <div class="card" id="card_turbine">
+      <div class="card-header">
+        <div class="card-header-left"><div class="icon">💨</div><div><h2>Turbine</h2></div></div>
+        <div class="completion-badge" id="badge_turbine">0 / 6</div>
+      </div>
+      <div class="card-body">
+        <button class="select-all-btn" id="sab_turbine" onclick="selectAll('turbine')">✓ Tick All</button>
+        <div class="checklist" id="cl_turbine">
+          <label class="check-item" onclick="toggleCheck(this,'turbine')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'turbine')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'turbine')"><input type="checkbox" value="Plugs Checked &amp; Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Plugs Checked &amp; Tested</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'turbine')"><input type="checkbox" value="Filters Changed (Internal &amp; External)"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Filters Changed (Internal &amp; External)</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'turbine')"><input type="checkbox" value="Check for Leaks or Breaks"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Check for Leaks or Breaks</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'turbine')"><input type="checkbox" value="Connectors Checked"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Connectors Checked</span></label>
+        </div>
+        <div class="other-field"><label>Other / Notes</label><input type="text" id="other_turbine" placeholder="e.g. filter needs replacing next month…"></div>
+        <div class="req-warn" id="warn_turbine">⚠ Please tick at least one item</div>
+      </div>
+    </div>
+
+    <!-- HOSE -->
+    <div class="card" id="card_hose">
+      <div class="card-header">
+        <div class="card-header-left"><div class="icon">🔗</div><div><h2>Hose</h2></div></div>
+        <div class="completion-badge" id="badge_hose">0 / 4</div>
+      </div>
+      <div class="card-body">
+        <button class="select-all-btn" id="sab_hose" onclick="selectAll('hose')">✓ Tick All</button>
+        <div class="checklist" id="cl_hose">
+          <label class="check-item" onclick="toggleCheck(this,'hose')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'hose')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'hose')"><input type="checkbox" value="Check for Leaks or Breaks"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Check for Leaks or Breaks</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'hose')"><input type="checkbox" value="Connectors Checked"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Connectors Checked</span></label>
+        </div>
+        <div class="other-field"><label>Other / Notes</label><input type="text" id="other_hose" placeholder="Additional notes…"></div>
+        <div class="req-warn" id="warn_hose">⚠ Please tick at least one item</div>
+      </div>
+    </div>
+
+    <!-- EXTRACTOR -->
+    <div class="card" id="card_extractor">
+      <div class="card-header">
+        <div class="card-header-left"><div class="icon">🌀</div><div><h2>Extractor</h2></div></div>
+        <div class="completion-badge" id="badge_extractor">0 / 6</div>
+      </div>
+      <div class="card-body">
+        <button class="select-all-btn" id="sab_extractor" onclick="selectAll('extractor')">✓ Tick All</button>
+        <div class="checklist" id="cl_extractor">
+          <label class="check-item" onclick="toggleCheck(this,'extractor')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'extractor')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'extractor')"><input type="checkbox" value="Plugs Checked &amp; Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Plugs Checked &amp; Tested</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'extractor')"><input type="checkbox" value="Check for Leaks or Breaks"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Check for Leaks or Breaks</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'extractor')"><input type="checkbox" value="Mesh removed and spray dust cleaned out"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Mesh removed and spray dust cleaned out</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'extractor')"><input type="checkbox" value="Connectors inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Connectors Inspected</span></label>
+        </div>
+        <div class="other-field"><label>Other / Notes</label><input type="text" id="other_extractor" placeholder="Additional notes…"></div>
+        <div class="req-warn" id="warn_extractor">⚠ Please tick at least one item</div>
+      </div>
+    </div>
+
+    <!-- EXTRACTOR DUCTING -->
+    <div class="card" id="card_ducting">
+      <div class="card-header">
+        <div class="card-header-left"><div class="icon">🔧</div><div><h2>Extractor Ducting</h2></div></div>
+        <div class="completion-badge" id="badge_ducting">0 / 4</div>
+      </div>
+      <div class="card-body">
+        <button class="select-all-btn" id="sab_ducting" onclick="selectAll('ducting')">✓ Tick All</button>
+        <div class="checklist" id="cl_ducting">
+          <label class="check-item" onclick="toggleCheck(this,'ducting')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'ducting')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'ducting')"><input type="checkbox" value="Check for Leaks or Breaks"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Check for Leaks or Breaks</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'ducting')"><input type="checkbox" value="Repaired as needed / if needed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Repaired as needed / if needed</span></label>
+        </div>
+        <div class="other-field"><label>Other / Notes</label><input type="text" id="other_ducting" placeholder="Additional notes…"></div>
+        <div class="req-warn" id="warn_ducting">⚠ Please tick at least one item</div>
+      </div>
+    </div>
+
+    <!-- SPRAY GUN -->
+    <div class="card" id="card_spraygun">
+      <div class="card-header">
+        <div class="card-header-left"><div class="icon">🔫</div><div><h2>Spray Gun</h2></div></div>
+        <div class="completion-badge" id="badge_spraygun">0 / 6</div>
+      </div>
+      <div class="card-body">
+        <button class="select-all-btn" id="sab_spraygun" onclick="selectAll('spraygun')">✓ Tick All</button>
+        <div class="checklist" id="cl_spraygun">
+          <label class="check-item" onclick="toggleCheck(this,'spraygun')"><input type="checkbox" value="Equipment Stripped, Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Stripped, Cleaned &amp; Washed</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'spraygun')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'spraygun')"><input type="checkbox" value="Plugs Checked &amp; Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Plugs Checked &amp; Tested</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'spraygun')"><input type="checkbox" value="Check for Leaks or Breaks"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Check for Leaks or Breaks</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'spraygun')"><input type="checkbox" value="Connectors Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Connectors Inspected</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'spraygun')"><input type="checkbox" value="Reassembled and Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Reassembled and Tested</span></label>
+        </div>
+        <div class="other-field"><label>Other / Notes</label><input type="text" id="other_spraygun" placeholder="Additional notes…"></div>
+        <div class="req-warn" id="warn_spraygun">⚠ Please tick at least one item</div>
+      </div>
+    </div>
+
+    <!-- FEZTOOL -->
+    <div class="card" id="card_feztool">
+      <div class="card-header">
+        <div class="card-header-left"><div class="icon">⚙️</div><div><h2>Feztool</h2></div></div>
+        <div class="completion-badge" id="badge_feztool">0 / 6</div>
+      </div>
+      <div class="card-body">
+        <button class="select-all-btn" id="sab_feztool" onclick="selectAll('feztool')">✓ Tick All</button>
+        <div class="checklist" id="cl_feztool">
+          <label class="check-item" onclick="toggleCheck(this,'feztool')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'feztool')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'feztool')"><input type="checkbox" value="Plugs &amp; Cables - Checked &amp; Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Plugs &amp; Cables – Checked &amp; Tested</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'feztool')"><input type="checkbox" value="Cleaned Filter"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Cleaned Filter</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'feztool')"><input type="checkbox" value="Connectors Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Connectors Inspected</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'feztool')"><input type="checkbox" value="Empty or Replace Collection Bag"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Empty or Replace Collection Bag</span></label>
+        </div>
+        <div class="other-field"><label>Other / Notes</label><input type="text" id="other_feztool" placeholder="Additional notes…"></div>
+        <div class="req-warn" id="warn_feztool">⚠ Please tick at least one item</div>
+      </div>
+    </div>
+
+    <!-- MIRKA -->
+    <div class="card" id="card_mirka">
+      <div class="card-header">
+        <div class="card-header-left"><div class="icon">⭕</div><div><h2>Mirka</h2></div></div>
+        <div class="completion-badge" id="badge_mirka">0 / 4</div>
+      </div>
+      <div class="card-body">
+        <button class="select-all-btn" id="sab_mirka" onclick="selectAll('mirka')">✓ Tick All</button>
+        <div class="checklist" id="cl_mirka">
+          <label class="check-item" onclick="toggleCheck(this,'mirka')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'mirka')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'mirka')"><input type="checkbox" value="Plugs &amp; Cables - Checked &amp; Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Plugs &amp; Cables – Checked &amp; Tested</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'mirka')"><input type="checkbox" value="Backing Pad Inspected &amp; Interface"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Backing Pad Inspected &amp; Interface</span></label>
+        </div>
+        <div class="other-field"><label>Other / Notes</label><input type="text" id="other_mirka" placeholder="Additional notes…"></div>
+        <div class="req-warn" id="warn_mirka">⚠ Please tick at least one item</div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="goStep(1)">← Back</button>
+      <div class="step-dots"><div class="dot done"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div></div>
+      <button class="btn btn-primary" onclick="goStep(3)">Next: Tools →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 3: POWER TOOLS + SAFETY (Polishing Machine, Airbrush, Mini Compressor, Heat Gun, Dremel, Respirator, Extension Lead, Leadlight, Dust Sheets, Hand Tools, Tool Boxes) ===== -->
+  <div class="step" id="step3">
+    <div class="mini-counter">Sections <span>8–18</span> of 19</div>
+
+    <!-- POLISHING MACHINE -->
+    <div class="card"><div class="card-header"><div class="card-header-left"><div class="icon">🔵</div><div><h2>Polishing Machine</h2></div></div><div class="completion-badge" id="badge_polish">0 / 3</div></div><div class="card-body"><button class="select-all-btn" id="sab_polish" onclick="selectAll('polish')">✓ Tick All</button><div class="checklist" id="cl_polish"><label class="check-item" onclick="toggleCheck(this,'polish')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label><label class="check-item" onclick="toggleCheck(this,'polish')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label><label class="check-item" onclick="toggleCheck(this,'polish')"><input type="checkbox" value="Plugs &amp; Cables - Checked &amp; Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Plugs &amp; Cables – Checked &amp; Tested</span></label></div><div class="other-field"><label>Other / Notes</label><input type="text" id="other_polish" placeholder="Additional notes…"></div><div class="req-warn" id="warn_polish">⚠ Please tick at least one item</div></div></div>
+
+    <!-- AIRBRUSH -->
+    <div class="card"><div class="card-header"><div class="card-header-left"><div class="icon">✏️</div><div><h2>Airbrush</h2></div></div><div class="completion-badge" id="badge_airbrush">0 / 4</div></div><div class="card-body"><button class="select-all-btn" id="sab_airbrush" onclick="selectAll('airbrush')">✓ Tick All</button><div class="checklist" id="cl_airbrush"><label class="check-item" onclick="toggleCheck(this,'airbrush')"><input type="checkbox" value="Equipment Stripped, Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Stripped, Cleaned &amp; Washed</span></label><label class="check-item" onclick="toggleCheck(this,'airbrush')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label><label class="check-item" onclick="toggleCheck(this,'airbrush')"><input type="checkbox" value="Plugs Checked &amp; Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Plugs Checked &amp; Tested</span></label><label class="check-item" onclick="toggleCheck(this,'airbrush')"><input type="checkbox" value="Reassembled and Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Reassembled and Tested</span></label></div><div class="other-field"><label>Other / Notes</label><input type="text" id="other_airbrush" placeholder="Additional notes…"></div><div class="req-warn" id="warn_airbrush">⚠ Please tick at least one item</div></div></div>
+
+    <!-- MINI COMPRESSOR -->
+    <div class="card"><div class="card-header"><div class="card-header-left"><div class="icon">🔩</div><div><h2>Mini Compressor</h2></div></div><div class="completion-badge" id="badge_compressor">0 / 3</div></div><div class="card-body"><button class="select-all-btn" id="sab_compressor" onclick="selectAll('compressor')">✓ Tick All</button><div class="checklist" id="cl_compressor"><label class="check-item" onclick="toggleCheck(this,'compressor')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label><label class="check-item" onclick="toggleCheck(this,'compressor')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label><label class="check-item" onclick="toggleCheck(this,'compressor')"><input type="checkbox" value="Plugs Checked &amp; Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Plugs Checked &amp; Tested</span></label></div><div class="other-field"><label>Other / Notes</label><input type="text" id="other_compressor" placeholder="Additional notes…"></div><div class="req-warn" id="warn_compressor">⚠ Please tick at least one item</div></div></div>
+
+    <!-- HEAT GUN -->
+    <div class="card"><div class="card-header"><div class="card-header-left"><div class="icon">🔥</div><div><h2>Heat Gun</h2></div></div><div class="completion-badge" id="badge_heatgun">0 / 3</div></div><div class="card-body"><button class="select-all-btn" id="sab_heatgun" onclick="selectAll('heatgun')">✓ Tick All</button><div class="checklist" id="cl_heatgun"><label class="check-item" onclick="toggleCheck(this,'heatgun')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label><label class="check-item" onclick="toggleCheck(this,'heatgun')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label><label class="check-item" onclick="toggleCheck(this,'heatgun')"><input type="checkbox" value="Plugs Checked &amp; Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Plugs Checked &amp; Tested</span></label></div><div class="other-field"><label>Other / Notes</label><input type="text" id="other_heatgun" placeholder="Additional notes…"></div><div class="req-warn" id="warn_heatgun">⚠ Please tick at least one item</div></div></div>
+
+    <!-- DREMEL -->
+    <div class="card"><div class="card-header"><div class="card-header-left"><div class="icon">🔄</div><div><h2>Dremel</h2></div></div><div class="completion-badge" id="badge_dremel">0 / 3</div></div><div class="card-body"><button class="select-all-btn" id="sab_dremel" onclick="selectAll('dremel')">✓ Tick All</button><div class="checklist" id="cl_dremel"><label class="check-item" onclick="toggleCheck(this,'dremel')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label><label class="check-item" onclick="toggleCheck(this,'dremel')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label><label class="check-item" onclick="toggleCheck(this,'dremel')"><input type="checkbox" value="Plugs Checked &amp; Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Plugs Checked &amp; Tested</span></label></div><div class="other-field"><label>Other / Notes</label><input type="text" id="other_dremel" placeholder="Additional notes…"></div><div class="req-warn" id="warn_dremel">⚠ Please tick at least one item</div></div></div>
+
+    <!-- RESPIRATOR -->
+    <div class="card"><div class="card-header"><div class="card-header-left"><div class="icon">😷</div><div><h2>Respirator</h2></div></div><div class="completion-badge" id="badge_respirator">0 / 5</div></div><div class="card-body"><button class="select-all-btn" id="sab_respirator" onclick="selectAll('respirator')">✓ Tick All</button><div class="checklist" id="cl_respirator"><label class="check-item" onclick="toggleCheck(this,'respirator')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label><label class="check-item" onclick="toggleCheck(this,'respirator')"><input type="checkbox" value="Equipment Visually Inspected Seal for Tears"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected – Seal for Tears</span></label><label class="check-item" onclick="toggleCheck(this,'respirator')"><input type="checkbox" value="Plugs Checked &amp; Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Plugs Checked &amp; Tested</span></label><label class="check-item" onclick="toggleCheck(this,'respirator')"><input type="checkbox" value="Straps not Twisted"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Straps not Twisted</span></label><label class="check-item" onclick="toggleCheck(this,'respirator')"><input type="checkbox" value="Filters Replaced as Required"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Filters Replaced as Required</span></label></div><div class="other-field"><label>Other / Notes</label><input type="text" id="other_respirator" placeholder="Additional notes…"></div><div class="req-warn" id="warn_respirator">⚠ Please tick at least one item</div></div></div>
+
+    <!-- EXTENSION LEAD -->
+    <div class="card"><div class="card-header"><div class="card-header-left"><div class="icon">🔌</div><div><h2>Extension Lead</h2></div></div><div class="completion-badge" id="badge_extlead">0 / 3</div></div><div class="card-body"><button class="select-all-btn" id="sab_extlead" onclick="selectAll('extlead')">✓ Tick All</button><div class="checklist" id="cl_extlead"><label class="check-item" onclick="toggleCheck(this,'extlead')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label><label class="check-item" onclick="toggleCheck(this,'extlead')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label><label class="check-item" onclick="toggleCheck(this,'extlead')"><input type="checkbox" value="Plugs Checked &amp; Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Plugs Checked &amp; Tested</span></label></div><div class="other-field"><label>Other / Notes</label><input type="text" id="other_extlead" placeholder="Additional notes…"></div><div class="req-warn" id="warn_extlead">⚠ Please tick at least one item</div></div></div>
+
+    <!-- LEADLIGHT -->
+    <div class="card"><div class="card-header"><div class="card-header-left"><div class="icon">💡</div><div><h2>Leadlight</h2></div></div><div class="completion-badge" id="badge_leadlight">0 / 3</div></div><div class="card-body"><button class="select-all-btn" id="sab_leadlight" onclick="selectAll('leadlight')">✓ Tick All</button><div class="checklist" id="cl_leadlight"><label class="check-item" onclick="toggleCheck(this,'leadlight')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label><label class="check-item" onclick="toggleCheck(this,'leadlight')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label><label class="check-item" onclick="toggleCheck(this,'leadlight')"><input type="checkbox" value="Plugs &amp; Cables - Checked &amp; Tested"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Plugs &amp; Cables – Checked &amp; Tested</span></label></div><div class="other-field"><label>Other / Notes</label><input type="text" id="other_leadlight" placeholder="Additional notes…"></div><div class="req-warn" id="warn_leadlight">⚠ Please tick at least one item</div></div></div>
+
+    <!-- DUST SHEETS -->
+    <div class="card"><div class="card-header"><div class="card-header-left"><div class="icon">🛏️</div><div><h2>Dust Sheets</h2></div></div><div class="completion-badge" id="badge_dustsheets">0 / 3</div></div><div class="card-body"><button class="select-all-btn" id="sab_dustsheets" onclick="selectAll('dustsheets')">✓ Tick All</button><div class="checklist" id="cl_dustsheets"><label class="check-item" onclick="toggleCheck(this,'dustsheets')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label><label class="check-item" onclick="toggleCheck(this,'dustsheets')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label><label class="check-item" onclick="toggleCheck(this,'dustsheets')"><input type="checkbox" value="Any Tears Fixed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Any Tears Fixed</span></label></div><div class="other-field"><label>Other / Notes</label><input type="text" id="other_dustsheets" placeholder="Additional notes…"></div><div class="req-warn" id="warn_dustsheets">⚠ Please tick at least one item</div></div></div>
+
+    <!-- HAND TOOLS -->
+    <div class="card"><div class="card-header"><div class="card-header-left"><div class="icon">🔨</div><div><h2>Hand Tools</h2></div></div><div class="completion-badge" id="badge_handtools">0 / 2</div></div><div class="card-body"><button class="select-all-btn" id="sab_handtools" onclick="selectAll('handtools')">✓ Tick All</button><div class="checklist" id="cl_handtools"><label class="check-item" onclick="toggleCheck(this,'handtools')"><input type="checkbox" value="Equipment Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Cleaned &amp; Washed</span></label><label class="check-item" onclick="toggleCheck(this,'handtools')"><input type="checkbox" value="Equipment Visually Inspected"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Equipment Visually Inspected</span></label></div><div class="other-field"><label>Other / Notes</label><input type="text" id="other_handtools" placeholder="Additional notes…"></div><div class="req-warn" id="warn_handtools">⚠ Please tick at least one item</div></div></div>
+
+    <!-- TOOL BOXES -->
+    <div class="card"><div class="card-header"><div class="card-header-left"><div class="icon">🧰</div><div><h2>Tool Boxes</h2></div></div><div class="completion-badge" id="badge_toolboxes">0 / 2</div></div><div class="card-body"><button class="select-all-btn" id="sab_toolboxes" onclick="selectAll('toolboxes')">✓ Tick All</button><div class="checklist" id="cl_toolboxes"><label class="check-item" onclick="toggleCheck(this,'toolboxes')"><input type="checkbox" value="Empty Out - Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Empty Out – Cleaned &amp; Washed</span></label><label class="check-item" onclick="toggleCheck(this,'toolboxes')"><input type="checkbox" value="Repacked in Order"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Repacked in Order</span></label></div><div class="other-field"><label>Other / Notes</label><input type="text" id="other_toolboxes" placeholder="Additional notes…"></div><div class="req-warn" id="warn_toolboxes">⚠ Please tick at least one item</div></div></div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="goStep(2)">← Back</button>
+      <div class="step-dots"><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div><div class="dot"></div></div>
+      <button class="btn btn-primary" onclick="goStep(4)">Next: Van →</button>
+    </div>
+  </div>
+
+  <!-- ===== STEP 4: VAN + NOTES ===== -->
+  <div class="step" id="step4">
+    <div class="mini-counter">Section <span>19</span> of 19</div>
+
+    <!-- VAN -->
+    <div class="card" id="card_van">
+      <div class="card-header">
+        <div class="card-header-left"><div class="icon">🚐</div><div><h2>Van</h2></div></div>
+        <div class="completion-badge" id="badge_van">0 / 8</div>
+      </div>
+      <div class="card-body">
+        <button class="select-all-btn" id="sab_van" onclick="selectAll('van')">✓ Tick All</button>
+        <div class="checklist" id="cl_van">
+          <label class="check-item" onclick="toggleCheck(this,'van')"><input type="checkbox" value="Exterior - Cleaned &amp; Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Exterior – Cleaned &amp; Washed</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'van')"><input type="checkbox" value="Load Bay Vacuumed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Load Bay Vacuumed</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'van')"><input type="checkbox" value="Cabin - Cleaned, Wiped and Vacuumed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Cabin – Cleaned, Wiped and Vacuumed</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'van')"><input type="checkbox" value="Oil Checked"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Oil Checked</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'van')"><input type="checkbox" value="Wipers &amp; Windscreen Washed"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Wipers &amp; Windscreen Washed</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'van')"><input type="checkbox" value="AdBlue"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">AdBlue</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'van')"><input type="checkbox" value="Visual Inspect Tyres"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Visual Inspect Tyres</span></label>
+          <label class="check-item" onclick="toggleCheck(this,'van')"><input type="checkbox" value="Tyre Pressures checked"><div class="check-box"><svg width="13" height="10" viewBox="0 0 13 10" fill="none"><path d="M1.5 5L5 8.5L11.5 1.5" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></svg></div><span class="check-label">Tyre Pressures Checked</span></label>
+        </div>
+        <div class="other-field"><label>Other / Notes</label><input type="text" id="other_van" placeholder="e.g. tyre needs attention…"></div>
+        <div class="req-warn" id="warn_van">⚠ Please tick at least one item</div>
+      </div>
+    </div>
+
+    <!-- GENERAL NOTES -->
+    <div class="card">
+      <div class="card-header">
+        <div class="card-header-left"><div class="icon">📝</div><div><h2>General Notes</h2><p>Optional — overall comments for this maintenance check</p></div></div>
+      </div>
+      <div class="card-body">
+        <div class="field">
+          <textarea id="generalNotes" placeholder="Any overall notes, repairs needed, or follow-up actions…"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav-buttons">
+      <button class="btn btn-secondary" onclick="goStep(3)">← Back</button>
+      <div class="step-dots"><div class="dot done"></div><div class="dot done"></div><div class="dot done"></div><div class="dot active"></div></div>
+      <button class="btn btn-submit" onclick="submitMaintenance()">✓ Submit Check</button>
+    </div>
+  </div>
+
+  <!-- SUCCESS -->
+  <div id="success-screen">
+    <div class="success-icon">✓</div>
+    <h2>Check Submitted!</h2>
+    <p>Monthly equipment maintenance has been recorded.</p>
+    <div class="success-meta">
+      Technician: <strong id="successName">—</strong><br>
+      Month: <strong id="successDate">—</strong><br>
+      Sections completed: <strong>19 / 19</strong>
+    </div>
+    <button class="btn-reset" onclick="resetForm()">Submit Another →</button>
+  </div>
+
+</div><!-- /form-wrap -->
+
+<script>
+// ── DATE DEFAULT ──────────────────────────────────────────────────────────────
+const today = new Date();
+document.getElementById('checkDate').value = today.toISOString().split('T')[0];
+
+// ── TECH SELECT ───────────────────────────────────────────────────────────────
+function selectTech(el, name) {
+  document.querySelectorAll('.tech-card').forEach(c => c.classList.remove('selected'));
+  el.classList.add('selected');
+  document.getElementById('techName').value = name;
+}
+
+// ── CHECKLIST TOGGLE ─────────────────────────────────────────────────────────
+function toggleCheck(labelEl, section) {
+  const cb = labelEl.querySelector('input[type="checkbox"]');
+  cb.checked = !cb.checked;
+  labelEl.classList.toggle('checked', cb.checked);
+  updateBadge(section);
+}
+
+function updateBadge(section) {
+  const cl = document.getElementById('cl_' + section);
+  if (!cl) return;
+  const items = cl.querySelectorAll('input[type="checkbox"]');
+  const checked = cl.querySelectorAll('input[type="checkbox"]:checked').length;
+  const total = items.length;
+  const badge = document.getElementById('badge_' + section);
+  const sab = document.getElementById('sab_' + section);
+  if (!badge) return;
+  badge.textContent = checked + ' / ' + total;
+  badge.className = 'completion-badge' + (checked === total ? ' complete' : checked > 0 ? ' partial' : '');
+  if (sab) sab.className = 'select-all-btn' + (checked === total ? ' all-done' : '');
+}
+
+function selectAll(section) {
+  const cl = document.getElementById('cl_' + section);
+  const items = cl.querySelectorAll('.check-item');
+  const allChecked = cl.querySelectorAll('input[type="checkbox"]:checked').length === items.length;
+  items.forEach(item => {
+    const cb = item.querySelector('input[type="checkbox"]');
+    cb.checked = !allChecked;
+    item.classList.toggle('checked', !allChecked);
+  });
+  updateBadge(section);
+}
+
+// ── STEP NAV ─────────────────────────────────────────────────────────────────
+const stepNames = ['Technician & Month', 'Paint Equipment Checks', 'Tools & Safety Checks', 'Van & Submit'];
+function goStep(n) {
+  if (n > 1) {
+    if (!document.getElementById('techName').value) { alert('Please select your name before continuing.'); return; }
+    if (!document.getElementById('checkDate').value) { alert('Please enter the month of the check.'); return; }
+  }
+  document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
+  document.getElementById('step' + n).classList.add('active');
+  document.getElementById('progressFill').style.width = ((n - 1) / 3 * 100) + '%';
+  document.getElementById('progressText').textContent = 'Step ' + n + ' of 4';
+  document.getElementById('progressStepName').textContent = stepNames[n - 1];
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ── FORM URL & ENTRY MAP ──────────────────────────────────────────────────────
+const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSccozCkwSsErPvXwd_nx9CT0-tGPg-X4ggAUQC0o8PgN4WvZg/formResponse';
+
+// section key → { entry: 'entry.XXXXXXX', otherEntry: 'entry.XXXXXXX.other_option_response' }
+const SECTION_MAP = {
+  turbine:    { entry: 'entry.242433656',  otherEntry: 'entry.242433656.other_option_response' },
+  hose:       { entry: 'entry.369690372',  otherEntry: 'entry.369690372.other_option_response' },
+  extractor:  { entry: 'entry.157557329',  otherEntry: 'entry.157557329.other_option_response' },
+  ducting:    { entry: 'entry.1285829486', otherEntry: 'entry.1285829486.other_option_response' },
+  spraygun:   { entry: 'entry.79532003',   otherEntry: 'entry.79532003.other_option_response' },
+  feztool:    { entry: 'entry.883601215',  otherEntry: 'entry.883601215.other_option_response' },
+  mirka:      { entry: 'entry.1502050254', otherEntry: 'entry.1502050254.other_option_response' },
+  polish:     { entry: 'entry.269886261',  otherEntry: 'entry.269886261.other_option_response' },
+  airbrush:   { entry: 'entry.696610107',  otherEntry: 'entry.696610107.other_option_response' },
+  compressor: { entry: 'entry.1191326170', otherEntry: 'entry.1191326170.other_option_response' },
+  heatgun:    { entry: 'entry.940705984',  otherEntry: 'entry.940705984.other_option_response' },
+  dremel:     { entry: 'entry.314349560',  otherEntry: 'entry.314349560.other_option_response' },
+  respirator: { entry: 'entry.1794352230', otherEntry: 'entry.1794352230.other_option_response' },
+  extlead:    { entry: 'entry.90704619',   otherEntry: 'entry.90704619.other_option_response' },
+  leadlight:  { entry: 'entry.1176374357', otherEntry: 'entry.1176374357.other_option_response' },
+  dustsheets: { entry: 'entry.1818204404', otherEntry: 'entry.1818204404.other_option_response' },
+  handtools:  { entry: 'entry.619279953',  otherEntry: 'entry.619279953.other_option_response' },
+  toolboxes:  { entry: 'entry.975356758',  otherEntry: 'entry.975356758.other_option_response' },
+  van:        { entry: 'entry.1647289886', otherEntry: 'entry.1647289886.other_option_response' },
+};
+
+// ── SUBMIT ────────────────────────────────────────────────────────────────────
+async function submitMaintenance() {
+  const name = document.getElementById('techName').value;
+  const date = document.getElementById('checkDate').value;
+  if (!name) { alert('Please select your name in Step 1.'); goStep(1); return; }
+  if (!date) { alert('Please enter the month of the check in Step 1.'); goStep(1); return; }
+
+  document.getElementById('loadingOverlay').classList.add('show');
+
+  const fd = new FormData();
+  fd.append('entry.541259840', date);   // Date field
+  fd.append('entry.1251734173', name);  // Technician field
+
+  // Append checked items for each section
+  Object.keys(SECTION_MAP).forEach(section => {
+    const { entry, otherEntry } = SECTION_MAP[section];
+    const cl = document.getElementById('cl_' + section);
+    const checked = cl.querySelectorAll('input[type="checkbox"]:checked');
+    checked.forEach(cb => fd.append(entry, cb.value));
+    // If there's an "other" note, send __other_option__ flag + the text
+    const otherVal = (document.getElementById('other_' + section) || {}).value || '';
+    if (otherVal.trim()) {
+      fd.append(entry, '__other_option__');
+      fd.append(otherEntry, otherVal.trim());
+    }
+  });
+
+  // General notes
+  fd.append('entry.1427959100', document.getElementById('generalNotes').value);
+
+  try {
+    await fetch(FORM_URL, { method: 'POST', body: fd, mode: 'no-cors' });
+    showSuccess(name, date);
+  } catch (err) {
+    document.getElementById('loadingOverlay').classList.remove('show');
+    alert('Something went wrong. Please check your connection and try again.');
+    console.error(err);
+  }
+}
+
+function showSuccess(name, date) {
+  document.getElementById('loadingOverlay').classList.remove('show');
+  document.querySelectorAll('.step').forEach(s => s.style.display = 'none');
+  document.getElementById('progressFill').style.width = '100%';
+  document.getElementById('progressStepName').textContent = 'Complete';
+  document.getElementById('progressText').textContent = 'Done!';
+  document.getElementById('successName').textContent = name;
+  const [y, m, d] = date.split('-');
+  const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  document.getElementById('successDate').textContent = d + ' ' + months[parseInt(m)-1] + ' ' + y;
+  document.getElementById('success-screen').style.display = 'block';
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function resetForm() { location.reload(); }
+</script>
+</body>
+</html>
