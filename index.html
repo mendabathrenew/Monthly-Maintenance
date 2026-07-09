@@ -59,9 +59,13 @@
   .checklist { display: flex; flex-direction: column; gap: 8px; }
   .check-item { display: flex; align-items: center; gap: 12px; padding: 13px 16px; background: var(--grey-bg); border-radius: 8px; cursor: pointer; transition: background 0.2s, border-color 0.2s; border: 2px solid transparent; min-height: 48px; }
   .check-item:hover { background: #eee; }
-  .check-item input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; accent-color: var(--grey-dark); flex-shrink: 0; }
-  .check-item span { font-size: 14px; font-weight: 500; }
+  .check-item input[type="checkbox"] { display: none; }
+  .check-box { width: 24px; height: 24px; border-radius: 6px; border: 2px solid #bbb; background: #fff; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: all 0.15s; }
+  .check-box::after { content: ''; display: none; width: 6px; height: 11px; border: 3px solid #fff; border-top: none; border-left: none; transform: rotate(45deg) translate(-1px, -1px); }
+  .check-item span { font-size: 14px; font-weight: 500; flex: 1; }
   .check-item.ticked { background: #fff9cc; border-color: var(--yellow); }
+  .check-item.ticked .check-box { background: var(--grey-dark); border-color: var(--grey-dark); }
+  .check-item.ticked .check-box::after { display: block; }
   .check-item.ticked span { font-weight: 600; color: var(--grey-dark); }
 
   .nav-buttons { display: flex; justify-content: space-between; align-items: center; margin-top: 24px; gap: 12px; }
@@ -349,12 +353,14 @@ document.getElementById('logDate').value = today.toISOString().split('T')[0];
 document.querySelectorAll('.check-item').forEach(function(label) {
   var cb = label.querySelector('input[type="checkbox"]');
   if (!cb) return;
-  cb.addEventListener('change', function() {
-    if (this.checked) {
-      label.classList.add('ticked');
-    } else {
-      label.classList.remove('ticked');
-    }
+  // Inject custom tick box before the label text
+  var box = document.createElement('div');
+  box.className = 'check-box';
+  label.insertBefore(box, label.querySelector('span'));
+  // Toggle on click of the whole row
+  label.addEventListener('click', function() {
+    cb.checked = !cb.checked;
+    label.classList.toggle('ticked', cb.checked);
   });
 });
 
