@@ -142,6 +142,7 @@
             <div class="tech-card" onclick="selectTech(this,'Stephen')"><div class="avatar">S</div>Stephen</div>
             <div class="tech-card" onclick="selectTech(this,'Grant Helm')"><div class="avatar">G</div>Grant Helm</div>
             <div class="tech-card" onclick="selectTech(this,'Nicky')"><div class="avatar">N</div>Nicky</div>
+            <div class="tech-card" onclick="selectTech(this,'Cosmin')"><div class="avatar">C</div>Cosmin</div>
           </div>
           <input type="hidden" id="techName">
         </div>
@@ -422,7 +423,7 @@ async function submitLog() {
   const fd = new FormData();
   fd.append('entry.1251734173', name); // Technician Name
   fd.append('entry.541259840',  date); // Date
-  fd.append('entry.VEHICLE_MILEAGE', document.getElementById('vehicleMileage').value); // Vehicle Mileage — replace VEHICLE_MILEAGE with the real entry ID from the Google Form
+  fd.append('entry.390394603', document.getElementById('vehicleMileage').value); // Vehicle Mileage
 
   // Collect all checklists
   document.querySelectorAll('.checklist').forEach(list => {
