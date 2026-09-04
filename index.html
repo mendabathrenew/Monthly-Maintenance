@@ -413,9 +413,7 @@ function goStep(n) {
 }
 
 // Data is written to a Google Sheet through an Apps Script Web App.
-// See the "Server-side sync fix" section of the PR description for the
-// Apps Script source. Paste your deployed /exec URL here:
-const API_URL = 'PASTE_YOUR_APPS_SCRIPT_WEB_APP_URL_HERE';
+const API_URL = 'https://script.google.com/macros/s/AKfycbxu2buPC2U255AtRueotqHYYVjoG8bXL59qrSkHZx-ioLbhMi1kuhJhvloA5jnf_Ul7mA/exec';
 
 async function submitLog() {
   const name = document.getElementById('techName').value;
