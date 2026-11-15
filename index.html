@@ -97,6 +97,21 @@
   .btn-reset { margin-top: 12px; background: var(--grey-dark); color: var(--yellow); border: none; padding: 13px 32px; border-radius: 8px; font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 16px; letter-spacing: 1px; text-transform: uppercase; cursor: pointer; }
   .btn-reset:hover { background: #1a1a1a; }
   .req { color: var(--yellow-dark); }
+
+  .choice-item { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 16px; background: var(--grey-bg); border-radius: 8px; flex-wrap: wrap; }
+  .choice-item-label { font-size: 14px; font-weight: 500; color: var(--grey-dark); }
+  .choice-btns { display: flex; gap: 8px; }
+  .choice-btns input[type="radio"] { position: absolute; opacity: 0; width: 0; height: 0; }
+  .choice-btn { padding: 8px 16px; border-radius: 6px; border: 1.5px solid var(--grey-border); background: var(--white); font-size: 12px; font-weight: 700; color: var(--grey-mid); cursor: pointer; transition: all 0.15s; text-transform: uppercase; letter-spacing: 0.4px; }
+  .choice-btn:has(input:checked) { background: var(--grey-dark); border-color: var(--grey-dark); color: var(--yellow); }
+
+  .photo-field { margin-top: 10px; padding: 12px 16px; background: var(--grey-bg); border-radius: 8px; }
+  .photo-field-label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--grey-mid); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+  .photo-input { display: none; }
+  .photo-btn { display: inline-flex; align-items: center; gap: 8px; padding: 10px 18px; border-radius: 8px; border: 1.5px dashed #bbb; background: var(--white); font-size: 12px; font-weight: 700; color: var(--grey-mid); cursor: pointer; text-transform: uppercase; letter-spacing: 0.4px; transition: all 0.15s; }
+  .photo-field.has-photo .photo-btn { border-style: solid; border-color: var(--yellow-dark); color: var(--grey-dark); }
+  .photo-preview { display: none; margin-top: 10px; max-width: 180px; max-height: 180px; border-radius: 8px; border: 1.5px solid var(--grey-border); }
+  .photo-field.has-photo .photo-preview { display: block; }
 </style>
 </head>
 <body>
@@ -172,9 +187,34 @@
           <label>Turbine (Unit &amp; Cable)</label>
           <div class="checklist" data-field="turbine">
             <label class="check-item"><input type="checkbox" value="Equipment Visually Inspected"><span>Equipment Visually Inspected</span></label>
-            <label class="check-item"><input type="checkbox" value="Plugs Checked &amp; Tested"><span>Plugs Checked &amp; Tested</span></label>
-            <label class="check-item"><input type="checkbox" value="Filters Cleaned (Internal &amp; External)"><span>Filters Cleaned (Internal &amp; External)</span></label>
-            <label class="check-item"><input type="checkbox" value="Connectors Checked"><span>Connectors Checked</span></label>
+            <label class="check-item"><input type="checkbox" value="Plugs Checked for Loose Connections"><span>Plugs Checked for Loose Connections</span></label>
+            <div class="choice-item">
+              <span class="choice-item-label">Filters Internal</span>
+              <div class="choice-btns">
+                <label class="choice-btn"><input type="radio" name="turbineFiltersInternal" value="Filters Internal: Checked"><span>Checked</span></label>
+                <label class="choice-btn"><input type="radio" name="turbineFiltersInternal" value="Filters Internal: Changed"><span>Changed</span></label>
+              </div>
+            </div>
+            <div class="photo-field" data-photo-key="turbineFiltersInternal">
+              <div class="photo-field-label">Photo – Filters Internal Condition <span class="req">*</span></div>
+              <input type="file" accept="image/*" capture="environment" class="photo-input" id="photo_turbineFiltersInternal">
+              <label for="photo_turbineFiltersInternal" class="photo-btn">📷 Take / Choose Photo</label>
+              <img class="photo-preview" id="preview_turbineFiltersInternal">
+            </div>
+            <div class="choice-item">
+              <span class="choice-item-label">Filters External</span>
+              <div class="choice-btns">
+                <label class="choice-btn"><input type="radio" name="turbineFiltersExternal" value="Filters External: Checked"><span>Checked</span></label>
+                <label class="choice-btn"><input type="radio" name="turbineFiltersExternal" value="Filters External: Changed"><span>Changed</span></label>
+              </div>
+            </div>
+            <div class="photo-field" data-photo-key="turbineFiltersExternal">
+              <div class="photo-field-label">Photo – Filters External Condition <span class="req">*</span></div>
+              <input type="file" accept="image/*" capture="environment" class="photo-input" id="photo_turbineFiltersExternal">
+              <label for="photo_turbineFiltersExternal" class="photo-btn">📷 Take / Choose Photo</label>
+              <img class="photo-preview" id="preview_turbineFiltersExternal">
+            </div>
+            <label class="check-item"><input type="checkbox" value="Connector Checked &amp; Tightened"><span>Connector Checked &amp; Tightened</span></label>
           </div>
         </div>
         <div class="field" style="margin-bottom:20px">
@@ -212,15 +252,15 @@
           <div class="checklist" data-field="extractionFan">
             <label class="check-item"><input type="checkbox" value="Equipment Cleaned"><span>Equipment Cleaned</span></label>
             <label class="check-item"><input type="checkbox" value="Unit Visually Inspected"><span>Unit Visually Inspected</span></label>
-            <label class="check-item"><input type="checkbox" value="Mesh and Ducting Removed, Spray Dust Cleaned from Both Sides"><span>Mesh and Ducting Removed, Spray Dust Cleaned from Both Sides</span></label>
-            <label class="check-item"><input type="checkbox" value="Connectors inspected"><span>Connectors inspected</span></label>
+            <label class="check-item"><input type="checkbox" value="Mesh and Ducting Removed, Spray Dust Cleaned from Both Sides of Unit"><span>Mesh and Ducting Removed, Spray Dust Cleaned from Both Sides of Unit</span></label>
+            <label class="check-item"><input type="checkbox" value="Plugs checked for loose connections"><span>Plugs checked for loose connections</span></label>
           </div>
         </div>
         <div class="field">
           <label>Extraction Ducting</label>
           <div class="checklist" data-field="extractionDucting">
             <label class="check-item"><input type="checkbox" value="Check for Leaks or Breaks"><span>Check for Leaks or Breaks</span></label>
-            <label class="check-item"><input type="checkbox" value="Repair if needed"><span>Repair if needed</span></label>
+            <label class="check-item"><input type="checkbox" value="Repaired if needed"><span>Repaired if needed</span></label>
           </div>
         </div>
       </div>
@@ -240,10 +280,20 @@
         <div class="field" style="margin-bottom:20px">
           <label>Festool Vacuum (Unit &amp; Cable)</label>
           <div class="checklist" data-field="vacuum">
-            <label class="check-item"><input type="checkbox" value="Equipment Cleaned"><span>Equipment Cleaned</span></label>
-            <label class="check-item"><input type="checkbox" value="Equipment Checked"><span>Equipment Checked</span></label>
-            <label class="check-item"><input type="checkbox" value="Plugs, Cables &amp; Hose Inspected &amp; Checked"><span>Plugs, Cables &amp; Hose Inspected &amp; Checked</span></label>
-            <label class="check-item"><input type="checkbox" value="Filters Cleaned"><span>Filters Cleaned</span></label>
+            <label class="check-item"><input type="checkbox" value="Plugs, Cables &amp; Hose Inspected &amp; Checked for loose connections"><span>Plugs, Cables &amp; Hose Inspected &amp; Checked for loose connections</span></label>
+            <div class="choice-item">
+              <span class="choice-item-label">Filters</span>
+              <div class="choice-btns">
+                <label class="choice-btn"><input type="radio" name="vacuumFilters" value="Filters: Cleaned"><span>Cleaned</span></label>
+                <label class="choice-btn"><input type="radio" name="vacuumFilters" value="Filters: Changed"><span>Changed</span></label>
+              </div>
+            </div>
+            <div class="photo-field" data-photo-key="vacuumFilters">
+              <div class="photo-field-label">Photo – Filters Condition <span class="req">*</span></div>
+              <input type="file" accept="image/*" capture="environment" class="photo-input" id="photo_vacuumFilters">
+              <label for="photo_vacuumFilters" class="photo-btn">📷 Take / Choose Photo</label>
+              <img class="photo-preview" id="preview_vacuumFilters">
+            </div>
             <label class="check-item"><input type="checkbox" value="Empty Collection Bag"><span>Empty Collection Bag</span></label>
             <label class="check-item"><input type="checkbox" value="Replace Collection Bag"><span>Replace Collection Bag</span></label>
           </div>
@@ -257,6 +307,7 @@
             <label class="check-item"><input type="checkbox" value="Backing Pad Replaced"><span>Backing Pad Replaced</span></label>
             <label class="check-item"><input type="checkbox" value="Interface Pad Checked"><span>Interface Pad Checked</span></label>
             <label class="check-item"><input type="checkbox" value="Interface Pad Replaced"><span>Interface Pad Replaced</span></label>
+            <label class="check-item"><input type="checkbox" value="Cable checked and inspected for loose connections"><span>Cable checked and inspected for loose connections</span></label>
           </div>
         </div>
         <div class="field" style="margin-bottom:20px">
@@ -264,7 +315,7 @@
           <div class="checklist" data-field="polisher">
             <label class="check-item"><input type="checkbox" value="Equipment Cleaned"><span>Equipment Cleaned</span></label>
             <label class="check-item"><input type="checkbox" value="Equipment Visually Inspected"><span>Equipment Visually Inspected</span></label>
-            <label class="check-item"><input type="checkbox" value="Plugs &amp; Cables - Checked &amp; Tested"><span>Plugs &amp; Cables - Checked &amp; Tested</span></label>
+            <label class="check-item"><input type="checkbox" value="Plugs &amp; Cables - Checked for loose connections"><span>Plugs &amp; Cables - Checked for loose connections</span></label>
           </div>
         </div>
         <div class="field" style="margin-bottom:20px">
@@ -272,7 +323,7 @@
           <div class="checklist" data-field="heatGun">
             <label class="check-item"><input type="checkbox" value="Equipment Cleaned"><span>Equipment Cleaned</span></label>
             <label class="check-item"><input type="checkbox" value="Equipment Visually Inspected"><span>Equipment Visually Inspected</span></label>
-            <label class="check-item"><input type="checkbox" value="Plugs &amp; Cables - Checked &amp; Tested"><span>Plugs &amp; Cables - Checked &amp; Tested</span></label>
+            <label class="check-item"><input type="checkbox" value="Plugs &amp; Cables - Checked for loose connections"><span>Plugs &amp; Cables - Checked for loose connections</span></label>
           </div>
         </div>
         <div class="field" style="margin-bottom:20px">
@@ -282,6 +333,12 @@
             <label class="check-item"><input type="checkbox" value="Equipment Visually Inspected Seal for Tears"><span>Equipment Visually Inspected Seal for Tears</span></label>
             <label class="check-item"><input type="checkbox" value="Straps not Twisted"><span>Straps not Twisted</span></label>
             <label class="check-item"><input type="checkbox" value="Filters Replaced"><span>Filters Replaced</span></label>
+            <div class="photo-field" data-photo-key="respiratorFilters">
+              <div class="photo-field-label">Photo – Filters Condition <span class="req">*</span></div>
+              <input type="file" accept="image/*" capture="environment" class="photo-input" id="photo_respiratorFilters">
+              <label for="photo_respiratorFilters" class="photo-btn">📷 Take / Choose Photo</label>
+              <img class="photo-preview" id="preview_respiratorFilters">
+            </div>
           </div>
         </div>
         <div class="field">
@@ -311,6 +368,18 @@
             <label class="check-item"><input type="checkbox" value="Empty Out - Cleaned"><span>Empty Out - Cleaned</span></label>
             <label class="check-item"><input type="checkbox" value="Repacked in Order"><span>Repacked in Order</span></label>
           </div>
+          <div class="photo-field" data-photo-key="toolboxBefore">
+            <div class="photo-field-label">Photo – Before <span class="req">*</span></div>
+            <input type="file" accept="image/*" capture="environment" class="photo-input" id="photo_toolboxBefore">
+            <label for="photo_toolboxBefore" class="photo-btn">📷 Take / Choose Photo</label>
+            <img class="photo-preview" id="preview_toolboxBefore">
+          </div>
+          <div class="photo-field" data-photo-key="toolboxAfter">
+            <div class="photo-field-label">Photo – After <span class="req">*</span></div>
+            <input type="file" accept="image/*" capture="environment" class="photo-input" id="photo_toolboxAfter">
+            <label for="photo_toolboxAfter" class="photo-btn">📷 Take / Choose Photo</label>
+            <img class="photo-preview" id="preview_toolboxAfter">
+          </div>
         </div>
         <div class="field" style="margin-bottom:20px">
           <label>Van</label>
@@ -325,6 +394,12 @@
             <label class="check-item"><input type="checkbox" value="Injector Cleaner Added"><span>Injector Cleaner Added</span></label>
             <label class="check-item"><input type="checkbox" value="Visual Inspect Tyres"><span>Visual Inspect Tyres</span></label>
             <label class="check-item"><input type="checkbox" value="Tyre Pressures Checked"><span>Tyre Pressures Checked</span></label>
+          </div>
+          <div class="photo-field" data-photo-key="vanAfter">
+            <div class="photo-field-label">Photo – After Cleaning <span class="req">*</span></div>
+            <input type="file" accept="image/*" capture="environment" class="photo-input" id="photo_vanAfter">
+            <label for="photo_vanAfter" class="photo-btn">📷 Take / Choose Photo</label>
+            <img class="photo-preview" id="preview_vanAfter">
           </div>
         </div>
         <div class="field">
@@ -394,6 +469,57 @@ document.querySelectorAll('.check-item').forEach(function(label) {
   document.querySelector('#step1 .card-body').appendChild(banner);
 })();
 
+// ── PHOTO CAPTURE ──────────────────────────────
+const photos = {}; // photoKey -> compressed base64 data URL
+
+function compressImage(file, callback) {
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const img = new Image();
+    img.onload = function() {
+      const maxDim = 1280;
+      let w = img.width, h = img.height;
+      if (w > maxDim || h > maxDim) {
+        if (w > h) { h = Math.round(h * maxDim / w); w = maxDim; }
+        else { w = Math.round(w * maxDim / h); h = maxDim; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w;
+      canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      callback(canvas.toDataURL('image/jpeg', 0.7));
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function setupPhotoField(key) {
+  const input = document.getElementById('photo_' + key);
+  const preview = document.getElementById('preview_' + key);
+  const field = input.closest('.photo-field');
+  input.addEventListener('change', function() {
+    const file = input.files[0];
+    if (!file) return;
+    compressImage(file, function(dataUrl) {
+      photos[key] = dataUrl;
+      preview.src = dataUrl;
+      field.classList.add('has-photo');
+    });
+  });
+}
+
+const REQUIRED_PHOTOS = [
+  { key: 'turbineFiltersInternal', label: 'Turbine – Filters Internal photo', step: 2 },
+  { key: 'turbineFiltersExternal', label: 'Turbine – Filters External photo', step: 2 },
+  { key: 'vacuumFilters', label: 'Festool Vacuum – Filters photo', step: 4 },
+  { key: 'respiratorFilters', label: 'Respirator – Filters photo', step: 4 },
+  { key: 'toolboxBefore', label: 'Tool Box – Before photo', step: 5 },
+  { key: 'toolboxAfter', label: 'Tool Box – After photo', step: 5 },
+  { key: 'vanAfter', label: 'Van – After Cleaning photo', step: 5 }
+];
+REQUIRED_PHOTOS.forEach(p => setupPhotoField(p.key));
+
 function selectTech(el, name) {
   document.querySelectorAll('.tech-card').forEach(c => c.classList.remove('selected'));
   el.classList.add('selected');
@@ -423,6 +549,13 @@ async function submitLog() {
   const date = document.getElementById('logDate').value;
   if (!name || !date) { alert('Please complete Step 1.'); goStep(1); return; }
 
+  const missingPhotos = REQUIRED_PHOTOS.filter(p => !photos[p.key]);
+  if (missingPhotos.length) {
+    alert('Please add the required photo(s):\n' + missingPhotos.map(p => '• ' + p.label).join('\n'));
+    goStep(missingPhotos[0].step);
+    return;
+  }
+
   document.getElementById('loadingOverlay').classList.add('show');
 
   const fields = {
@@ -438,6 +571,9 @@ async function submitLog() {
     const checked = Array.from(list.querySelectorAll('input:checked')).map(cb => cb.value);
     fields[field] = checked.join('; ');
   });
+
+  // Attach required photos
+  REQUIRED_PHOTOS.forEach(p => { fields['photo_' + p.key] = photos[p.key]; });
 
   const body = new URLSearchParams(fields).toString();
 
